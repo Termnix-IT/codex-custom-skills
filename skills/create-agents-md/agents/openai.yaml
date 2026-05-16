@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create AGENTS.md"
+  short_description: "Create repository AGENTS.md instructions."
+  default_prompt: "Create an AGENTS.md for this repository by inspecting its structure, conventions, commands, and collaboration preferences."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Why Before Build"
+  short_description: "Challenge feature ideas before coding."
+  default_prompt: "Challenge this feature idea before implementation. Decide whether to reject, defer, shrink, prototype, or implement it, and define the smallest useful version only if it survives."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Design Brief"
+  short_description: "Clarify frontend design before coding"
+  default_prompt: "Use this skill to clarify frontend design direction, ask scope-appropriate questions, and keep implementation aligned with the approved brief."

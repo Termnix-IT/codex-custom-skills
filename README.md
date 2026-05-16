@@ -7,7 +7,7 @@
 ```text
 .
 ├── skills/
-│   └── example-skill/
+│   └── <skill-name>/
 │       └── SKILL.md
 ├── docs/
 │   ├── Skills解説.md
@@ -52,14 +52,21 @@ Use this skill when ...
 Windows PowerShell の例:
 
 ```powershell
-Copy-Item -Recurse .\skills\example-skill $env:USERPROFILE\.codex\skills\
+Copy-Item -Recurse .\skills\<skill-name> $env:USERPROFILE\.codex\skills\
 ```
+
+## Included Skills
+
+この repository に配置済みの skill は [Skills 解説](docs/Skills解説.md) にまとめています。
+
+現在は、license file が含まれていない自作 skill だけを公開対象として残しています。
 
 ## Notes
 
 - 実行用ファイルや scripts は English file names を使います。
 - 読み物の docs は Japanese file names を使います。
 - 公開前に license を選んで追加してください。
+- Codex 標準/配布 skill と判断できるものは、この repository には含めません。
 
 ## Documentation
 
