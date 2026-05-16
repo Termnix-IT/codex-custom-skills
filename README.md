@@ -65,8 +65,11 @@ Copy-Item -Recurse .\skills\<skill-name> $env:USERPROFILE\.codex\skills\
 
 - 実行用ファイルや scripts は English file names を使います。
 - 読み物の docs は Japanese file names を使います。
-- 公開前に license を選んで追加してください。
 - Codex 標準/配布 skill と判断できるものは、この repository には含めません。
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
 
 ## Documentation
 
