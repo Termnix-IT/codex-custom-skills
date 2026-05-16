@@ -1,4 +1,4 @@
-# Custom Codex Skills
+# codex-custom-skills
 
 自作した Codex Skills を管理し、GitHub で公開するための repository です。
 
