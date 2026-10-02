@@ -1,11 +1,11 @@
 ---
 name: video-edit
-description: Create videos from user-provided footage, images, text, music, and sound effects using Python and FFmpeg. Use for PVs, trailers, highlight or kill montages, app demos, introduction MVs from names and summaries, and other video edits, including capturing a runnable web app when requested. Explain prominent effects in plain language. Do not use for requests solely to generate new footage or to implement a video editor application.
+description: Create videos from user-provided footage, images, text, music, and sound effects using Python and FFmpeg. Use for PVs, trailers, motion graphics, highlight or kill montages, app demos, introduction MVs from names and summaries, and other video edits, including capturing a runnable web app when requested. Explain prominent effects in plain language. Do not use for requests solely to generate new footage or to implement a video editor application.
 ---
 
 # 動画の編集・制作
 
-提供された素材を、依頼の意図に合わせて編集する。名前・概要など文章だけの紹介依頼では、内容を確認し、文字や図の動きで動画を制作できる。PV、キル集、アプリ紹介は用途の例であり、ジャンルや尺を固定しない。必要ならGPT Imageで背景・挿絵・透過素材を補い、repoからの撮影も依頼に必要な場合だけ追加する。
+提供された素材を、依頼の意図に合わせて編集する。名前・概要など文章だけの紹介依頼では、内容を確認し、モーショングラフィックス（文字・図形・線・アイコンなどに動きを付ける表現）で動画を制作できる。PV、キル集、アプリ紹介は用途の例であり、ジャンルや尺を固定しない。必要ならGPT Imageで背景・挿絵・透過素材を補い、repoからの撮影も依頼に必要な場合だけ追加する。
 
 ## 依頼を編集方針にする
 
