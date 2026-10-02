@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import math
 import os
 import struct
 import subprocess
@@ -84,6 +85,31 @@ class PlanValidationTests(unittest.TestCase):
             workflow.render(plan, target, "nonexistent-encoder")
         self.assertEqual(target.read_bytes(), b"existing user data")
 
+    def test_audio_tracks_reject_accidental_cutoff_and_invalid_source_ranges(self):
+        self.info["audio"] = [{"codec": "pcm_s16le"}]
+        for fields in [{"time": 1}, {"source_start": 9, "duration": 2},
+                       {"role": "unknown"}, {"role": []}, {"duration": 1, "fade_in": 2},
+                       {"time": -1}, {"duration": 0}]:
+            with self.subTest(fields=fields), self.assertRaises(workflow.WorkflowError):
+                self.validate({"clips": [{"file": "clip.mp4"}],
+                               "audio_tracks": [{"file": "clip.mp4", **fields}]})
+
+    def test_audio_tracks_preserve_selected_timeline_and_source_offsets(self):
+        self.info["audio"] = [{"codec": "pcm_s16le"}]
+        plan = self.validate({"clips": [{"file": "clip.mp4"}], "audio_tracks": [
+            {"file": "clip.mp4", "role": "narration", "source_start": 2, "time": 1, "duration": 3},
+        ]})
+        self.assertEqual(plan["audio_tracks"][0]["time"], 1)
+        self.assertEqual(plan["audio_tracks"][0]["source_start"], 2)
+        self.assertEqual(plan["duration"], 10)
+
+    def test_music_boolean_and_audible_fade_validation(self):
+        self.info["audio"] = [{"codec": "pcm_s16le"}]
+        for fields in [{"loop": "false"}, {"duck": 1},
+                       {"loop": False, "start": 9, "fade_in": 0.7, "fade_out": 0.7}]:
+            with self.subTest(fields=fields), self.assertRaises(workflow.WorkflowError):
+                self.validate({"clips": [{"file": "clip.mp4"}], "music": {"file": "clip.mp4", **fields}})
+
 
 @unittest.skipUnless(FFMPEG and FFPROBE, "Set VIDEO_EDIT_FFMPEG and VIDEO_EDIT_FFPROBE for media checks")
 class RealMediaTests(unittest.TestCase):
@@ -97,6 +123,8 @@ class RealMediaTests(unittest.TestCase):
         cls.blue = cls.base / "音なし 青.mp4"
         cls.image = cls.base / "画像 緑.png"
         cls.music = cls.base / "音楽.wav"
+        cls.voice = cls.base / "声.wav"
+        cls.effect = cls.base / "効果音.wav"
         command = [FFMPEG, "-hide_banner", "-loglevel", "error", "-nostdin", "-n"]
         workflow.run(command + ["-f", "lavfi", "-i", "color=red:s=320x180:r=30:d=3",
                                "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000:duration=3",
@@ -107,6 +135,10 @@ class RealMediaTests(unittest.TestCase):
                                "-frames:v", "1", cls.image])
         workflow.run(command + ["-f", "lavfi", "-i", "sine=frequency=220:sample_rate=48000:duration=0.4",
                                cls.music])
+        workflow.run(command + ["-f", "lavfi", "-i", "sine=frequency=1200:sample_rate=24000:duration=0.8",
+                               cls.voice])
+        workflow.run(command + ["-f", "lavfi", "-i", "sine=frequency=1800:sample_rate=48000:duration=0.2",
+                               cls.effect])
 
     def plan(self, **extra):
         data = {"width": 320, "height": 180, "fps": 30, "clips": [
@@ -200,6 +232,62 @@ class RealMediaTests(unittest.TestCase):
         target = self.base / "fast.mp4"
         workflow.render(plan, target, FFMPEG)
         self.assertAlmostEqual(workflow.probe(target, FFPROBE)["duration"], 0.5, delta=0.06)
+
+    def tone_level(self, file, time, frequency, length=0.1):
+        audio = self.raw([FFMPEG, "-v", "error", "-ss", str(time), "-i", file, "-t", str(length),
+                          "-vn", "-ar", "48000", "-ac", "1", "-f", "f32le", "pipe:1"])
+        values = [value[0] for value in struct.iter_unpack("<f", audio)]
+        self.assertTrue(values)
+        phase = 2 * math.pi * frequency / 48000
+        real = sum(value * math.cos(phase * i) for i, value in enumerate(values))
+        imaginary = sum(value * math.sin(phase * i) for i, value in enumerate(values))
+        return 2 * math.hypot(real, imaginary) / len(values)
+
+    def audio_plan(self, **extra):
+        return workflow.validate_plan({"width": 320, "height": 180,
+            "clips": [{"file": self.blue.name}], **extra}, self.base,
+            lambda path: workflow.probe(path, FFPROBE))
+
+    def test_narration_ducks_music_and_effect_does_not(self):
+        plan = self.audio_plan(music={"file": self.music.name, "volume": 0.5, "fade_out": 0},
+                              audio_tracks=[
+                                  {"file": self.voice.name, "role": "narration", "time": 0.8, "volume": 4},
+                                  {"file": self.effect.name, "time": 2.2},
+                              ])
+        target = self.base / "ducked.mp4"
+        workflow.render(plan, target, FFMPEG)
+        before = self.tone_level(target, 0.2, 220)
+        during = self.tone_level(target, 1.1, 220)
+        after = self.tone_level(target, 1.95, 220)
+        effect_music = self.tone_level(target, 2.25, 220)
+        self.assertGreater(before, 0.02)
+        self.assertLess(during, before * 0.65)
+        self.assertGreater(after, during * 1.4)
+        self.assertGreater(effect_music, before * 0.8)
+        self.assertGreater(self.tone_level(target, 1.1, 1200), 0.1)
+        self.assertGreater(self.tone_level(target, 2.25, 1800), 0.03)
+        self.assertAlmostEqual(workflow.probe(target, FFPROBE)["duration"], 3, delta=0.08)
+        workflow.run([FFMPEG, "-v", "error", "-xerror", "-i", target, "-f", "null", "-"])
+
+    def test_timed_effect_without_music_and_voice_without_ducking(self):
+        target = self.base / "timed-effect.mp4"
+        workflow.render(self.audio_plan(audio_tracks=[{"file": self.effect.name, "time": 1.2}]), target, FFMPEG)
+        self.assertLess(self.tone_level(target, 0.3, 1800), 0.0001)
+        self.assertGreater(self.tone_level(target, 1.25, 1800), 0.03)
+        self.assertLess(self.tone_level(target, 1.9, 1800), 0.0001)
+        voice_target = self.base / "no-duck.mp4"
+        workflow.render(self.audio_plan(music={"file": self.music.name, "volume": 0.5, "duck": False, "fade_out": 0},
+                                        audio_tracks=[{"file": self.voice.name, "role": "narration", "time": 0.8}]),
+                        voice_target, FFMPEG)
+        before = self.tone_level(voice_target, 0.2, 220)
+        self.assertAlmostEqual(self.tone_level(voice_target, 1.1, 220), before, delta=before * 0.2)
+
+    def test_non_looped_music_ends_without_restarting(self):
+        target = self.base / "music-once.mp4"
+        workflow.render(self.audio_plan(music={"file": self.music.name, "loop": False,
+                                               "fade_in": 0.05, "fade_out": 0.05}), target, FFMPEG)
+        self.assertGreater(self.tone_level(target, 0.1, 220), 0.01)
+        self.assertLess(self.tone_level(target, 0.8, 220), 0.0001)
 
 
 if __name__ == "__main__":

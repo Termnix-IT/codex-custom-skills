@@ -95,7 +95,7 @@ def probe(path, ffprobe):
 
 
 def validate_plan(data, base, get_info):
-    keys(data, {"intent", "width", "height", "fps", "clips", "music", "subtitles"}, "plan")
+    keys(data, {"intent", "width", "height", "fps", "clips", "music", "audio_tracks", "subtitles"}, "plan")
     width = integer(data.get("width", 1920), "width", 2, 8192, even=True)
     height = integer(data.get("height", 1080), "height", 2, 8192, even=True)
     fps = integer(data.get("fps", 30), "fps", 1, 120)
@@ -151,10 +151,43 @@ def validate_plan(data, base, get_info):
             "audio": bool(info["audio"]) and not mute and kind == "video",
             "fade_in": fade_in, "fade_out": fade_out,
         })
+    duration = sum(c["duration"] for c in clips)
+    tracks = []
+    items = data.get("audio_tracks", [])
+    if not isinstance(items, list) or len(items) > 64:
+        raise WorkflowError("audio_tracks: expected an array with at most 64 entries")
+    for index, item in enumerate(items):
+        name = f"audio_tracks[{index}]"
+        keys(item, {"file", "role", "time", "source_start", "duration", "volume",
+                    "fade_in", "fade_out", "label"}, name)
+        path = asset(item.get("file"), base)
+        info = get_info(path)
+        if not info["audio"]:
+            raise WorkflowError(f"{name}: no audio stream")
+        role = item.get("role", "effect")
+        if not isinstance(role, str) or role not in {"narration", "effect"}:
+            raise WorkflowError(f"{name}.role: expected narration or effect")
+        available = number(info["duration"], f"{name}.source_duration", positive=True)
+        source_start = number(item.get("source_start", 0), f"{name}.source_start")
+        if source_start >= available:
+            raise WorkflowError(f"{name}.source_start: must be before the source ends")
+        length = number(item.get("duration", available - source_start), f"{name}.duration", positive=True)
+        time = number(item.get("time", 0), f"{name}.time")
+        if source_start + length > available + 0.001:
+            raise WorkflowError(f"{name}: selected audio exceeds the source duration")
+        if time + length > duration + 0.001:
+            raise WorkflowError(f"{name}: audio would be cut off; extend the video or select a shorter range")
+        fade_in = number(item.get("fade_in", 0), f"{name}.fade_in")
+        fade_out = number(item.get("fade_out", 0), f"{name}.fade_out")
+        if fade_in + fade_out > length:
+            raise WorkflowError(f"{name}: fades exceed selected audio duration")
+        tracks.append({"file": path, "role": role, "time": time, "source_start": source_start,
+                       "duration": length, "volume": number(item.get("volume", 1), f"{name}.volume", 0, 4),
+                       "fade_in": fade_in, "fade_out": fade_out})
     music = None
     if "music" in data:
         item = data["music"]
-        keys(item, {"file", "start", "volume"}, "music")
+        keys(item, {"file", "start", "volume", "loop", "fade_in", "fade_out", "duck"}, "music")
         path = asset(item.get("file"), base)
         info = get_info(path)
         if not info["audio"]:
@@ -163,14 +196,79 @@ def validate_plan(data, base, get_info):
         available = number(info["duration"], "music.source_duration", positive=True)
         if start >= available:
             raise WorkflowError("music.start: must be before the source ends")
-        music = {"file": path, "start": start,
+        loop, duck = item.get("loop", True), item.get("duck", True)
+        if not isinstance(loop, bool) or not isinstance(duck, bool):
+            raise WorkflowError("music.loop / music.duck: expected booleans")
+        # When not looping, fade at the end of the available music, not in padded silence.
+        music_length = duration if loop else min(duration, available - start)
+        fade_in = number(item.get("fade_in", 0), "music.fade_in")
+        fade_out = number(item.get("fade_out", min(1, music_length)), "music.fade_out")
+        if fade_in + fade_out > music_length:
+            raise WorkflowError("music: fades exceed audible music duration")
+        music = {"file": path, "start": start, "loop": loop, "duck": duck,
+                 "duration": music_length, "fade_in": fade_in, "fade_out": fade_out,
                  "volume": number(item.get("volume", 0.25), "music.volume", 0, 4)}
     subtitles = asset(data["subtitles"], base) if "subtitles" in data else None
     if subtitles and subtitles.suffix.lower() not in {".ass", ".srt"}:
         raise WorkflowError("subtitles: expected .ass or .srt")
     return {"width": width, "height": height, "fps": fps, "clips": clips,
-            "music": music, "subtitles": subtitles,
-            "duration": sum(c["duration"] for c in clips)}
+            "music": music, "audio_tracks": tracks, "subtitles": subtitles, "duration": duration}
+
+
+def audio_mix(plan):
+    """Build timed audio inputs and a graph; only narration controls music ducking."""
+    inputs, graph = [], []
+    length = plan["duration"]
+    format_filter = "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo"
+    graph.append(f"[0:a:0]{format_filter},asetpts=PTS-STARTPTS,apad,atrim=duration={length:.10g}[original]")
+    mixed = ["original"]
+    next_input = 1
+    music = plan["music"]
+    if music:
+        if music["loop"]:
+            inputs += ["-stream_loop", "-1"]
+        inputs += ["-ss", music["start"], "-i", music["file"]]
+        filters = [format_filter, "asetpts=PTS-STARTPTS", f"volume={music['volume']:.10g}",
+                   f"atrim=duration={music['duration']:.10g}"]
+        if music["fade_in"]:
+            filters.append(f"afade=t=in:st=0:d={music['fade_in']:.10g}")
+        if music["fade_out"]:
+            filters.append(f"afade=t=out:st={music['duration']-music['fade_out']:.10g}:d={music['fade_out']:.10g}")
+        filters += ["apad", f"atrim=duration={length:.10g}"]
+        graph.append(f"[{next_input}:a:0]" + ",".join(filters) + "[music]")
+        next_input += 1
+    narration = []
+    for index, track in enumerate(plan["audio_tracks"]):
+        inputs += ["-ss", track["source_start"], "-t", track["duration"], "-i", track["file"]]
+        filters = [format_filter, "asetpts=PTS-STARTPTS", f"atrim=duration={track['duration']:.10g}",
+                   f"volume={track['volume']:.10g}"]
+        if track["fade_in"]:
+            filters.append(f"afade=t=in:st=0:d={track['fade_in']:.10g}")
+        if track["fade_out"]:
+            filters.append(f"afade=t=out:st={track['duration']-track['fade_out']:.10g}:d={track['fade_out']:.10g}")
+        delay = round(track["time"] * 48000)
+        filters += [f"adelay={delay}S:all=1", "apad", f"atrim=duration={length:.10g}"]
+        label = f"track{index}"
+        graph.append(f"[{next_input}:a:0]" + ",".join(filters) + f"[{label}]")
+        (narration if track["role"] == "narration" else mixed).append(label)
+        next_input += 1
+    if narration:
+        graph.append("".join(f"[{label}]" for label in narration)
+                     + f"amix=inputs={len(narration)}:duration=longest:normalize=0[voice]")
+        if music and music["duck"]:
+            graph += ["[voice]asplit=2[voice_mix][voice_control]",
+                      "[music][voice_control]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=250[ducked]"]
+            mixed += ["voice_mix", "ducked"]
+        else:
+            mixed.append("voice")
+            if music:
+                mixed.append("music")
+    elif music:
+        mixed.append("music")
+    graph.append("".join(f"[{label}]" for label in mixed)
+                 + f"amix=inputs={len(mixed)}:duration=first:normalize=0,"
+                 "alimiter=limit=0.95:level=0:latency=1[audio]")
+    return inputs, ";\n".join(graph)
 
 
 def tempo_filters(speed):
@@ -206,6 +304,9 @@ def render(plan, output, ffmpeg, preview=False):
     video_encoding = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p"]
     intermediate_encoding = video_encoding + ["-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2"]
     encoding = video_encoding + ["-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"]
+    # FFmpeg 9 removed the legacy script option; newer builds load options with -/.
+    help_text = run([ffmpeg, "-hide_banner", "-h", "full"], timeout=30)
+    graph_option = "-filter_complex_script" if "filter_complex_script" in help_text else "-/filter_complex"
     with tempfile.TemporaryDirectory(prefix="video-edit-", dir=output.parent) as temp:
         work = Path(temp)
         names = []
@@ -241,20 +342,9 @@ def render(plan, output, ffmpeg, preview=False):
             "".join(f"file '{name}'\nduration {clip['duration']:.10g}\n"
                     for name, clip in zip(names, plan["clips"])), encoding="utf-8")
         args = common + ["-f", "concat", "-safe", "1", "-i", "clips.txt"]
-        if plan["music"]:
-            music = plan["music"]
-            args += ["-stream_loop", "-1", "-ss", music["start"], "-i", music["file"]]
-            fade = min(1, plan["duration"])
-            graph = (
-                f"[1:a:0]asetpts=PTS-STARTPTS,volume={music['volume']:.10g},"
-                f"atrim=duration={plan['duration']:.10g},"
-                f"afade=t=out:st={plan['duration']-fade:.10g}:d={fade:.10g}[music];"
-                "[0:a:0][music]amix=inputs=2:duration=first:normalize=0,"
-                "alimiter=limit=0.95:level=0:latency=1[audio]"
-            )
-            args += ["-filter_complex", graph, "-map", "0:v:0", "-map", "[audio]"]
-        else:
-            args += ["-map", "0:v:0", "-map", "0:a:0", "-af", "alimiter=limit=0.95:level=0:latency=1"]
+        inputs, graph = audio_mix(plan)
+        (work / "audio.ffgraph").write_text(graph, encoding="utf-8")
+        args += [*inputs, graph_option, "audio.ffgraph", "-map", "0:v:0", "-map", "[audio]"]
         if plan["subtitles"]:
             source = plan["subtitles"]
             subtitle_name = "captions" + source.suffix.lower()

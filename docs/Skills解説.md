@@ -13,7 +13,7 @@
 | `frontend-design-brief` | frontend の見た目や設計方向を実装前に明確化し、既存 UI と一貫した変更にします。 | `skills/frontend-design-brief/` |
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
 | `why-before-build` | personal project で機能追加前に、本当に作るべきか、最小範囲は何かを検討します。 | `skills/why-before-build/` |
-| `video-edit` | 提供された動画・画像・音声を編集し、目立つ演出を短く説明して、プレビュー・修正・書き出しまで進めます。 | `skills/video-edit/` |
+| `video-edit` | 提供素材に合う演出を2〜3案から選び、音付きの短いプレビューを確認して動画を制作します。 | `skills/video-edit/` |
 
 ## 整理ルール
 
@@ -60,10 +60,10 @@ Codex にデフォルトで入っている可能性がある skill は、安全�
 
 ### video-edit
 
-- **目的**: 提供素材を目的と雰囲気に合わせて編集し、専門用語を知らなくても制作・修正を依頼できるようにします。
+- **目的**: 提供素材の強みを活かす演出を提案し、専門用語を知らなくても制作・修正を依頼できるようにします。原文は意味と必須情報を守って要約できます。
 - **使う場面**: PV、キル集、アプリ紹介MVなどの編集依頼。必要なら起動可能なWebアプリの撮影から扱いますが、ジャンルは限定しません。
-- **成果物**: 完成動画、プレビュー、修正用の編集JSONまたは制作スクリプト、主な演出の短い説明。
-- **注意点**: PythonとFFmpeg・ffprobeが必要です。見せ場は映像を確認して判断します。同梱スクリプトの操作・対応範囲はSkill内の[実行手順](../skills/video-edit/references/実行手順.md)を参照してください。
+- **成果物**: 演出案、音付きの短いプレビュー、確認後の完成動画、修正用の編集JSONまたは制作スクリプト、主な演出の短い説明。
+- **注意点**: PythonとFFmpeg・ffprobeが必要です。BGMは持ち込みを優先し、不足時やAI選曲を指定した場合は候補から選びます。任意のGemini TTSにはAPI利用環境が必要です。同梱スクリプトの操作・対応範囲はSkill内の[実行手順](../skills/video-edit/references/実行手順.md)、TTSは[音声生成](../skills/video-edit/references/音声生成.md)を参照してください。
 
 ## 追記テンプレート
 
