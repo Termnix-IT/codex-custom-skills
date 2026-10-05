@@ -8,7 +8,7 @@
 
 | Skill | 何をする skill か | Directory |
 | --- | --- | --- |
-| `create-agents-md` | repository 向けの `AGENTS.md` を作成、更新し、Codex や coding agent 用の作業ルールを整理します。 | `skills/create-agents-md/` |
+| `create-agentsmd` | repository の根拠、コマンド、階層別の適用範囲を確認し、`AGENTS.md`を作成・改善・監査します。 | `skills/create-agentsmd/` |
 | `feature-dev` | 非自明な機能開発を、調査、設計比較、実装、検証、要約まで一貫して進めます。 | `skills/feature-dev/` |
 | `frontend-design-brief` | frontend の見た目や設計方向を実装前に明確化し、既存 UI と一貫した変更にします。 | `skills/frontend-design-brief/` |
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
@@ -17,18 +17,23 @@
 
 ## 整理ルール
 
-Codex にデフォルトで入っている可能性がある skill は、安全のためこの repository から外します。
+現役Skillは`skills/`に置き、自作Skillと明示的に採用した外部Skillを管理します。Codex標準Skillは重複して含めません。license / noticeの有無だけで採用・除外を決めず、目的と出典を確認します。
 
-現時点では、自作 skill には license を置いていない前提で、`LICENSE`, `LICENCE`, `COPYING`, `NOTICE` などの license / notice file が含まれる skill を既存/配布 skill と判断して除外しています。
+外部Skillには採用元、採用コミット、ローカルでの変更点を記録し、配布元のlicense / noticeを保持します。置き換えた旧版は`archive/skills/<skill-name>/`へ保管し、`廃止理由.md`に判断理由、置き換え先、復元方法を残します。旧版の`SKILL.md`は`旧手順.md`へ改名し、アーカイブをSkill探索・インストール対象から外します。
+
+廃止したSkillと保管内容は、各フォルダの記録を参照してください。
+
+- [create-agents-mdの廃止理由](../archive/skills/create-agents-md/廃止理由.md)
 
 ## Skill 別メモ
 
-### create-agents-md
+### create-agentsmd
 
 - **目的**: repository の coding agent 向けルールを `AGENTS.md` として整備します。
-- **使う場面**: project conventions、build/test command、編集ルール、禁止事項を Codex に覚えさせたいとき。
-- **成果物**: `AGENTS.md` の新規作成または更新。
-- **注意点**: repository 固有の事実に基づいて書くため、実装や設定を確認してから使います。
+- **使う場面**: `AGENTS.md`の新規作成、既存指示の改善・監査、monorepoの階層別指示を整備するとき。
+- **成果物**: 根拠に基づく`AGENTS.md`の新規作成または更新、検証結果と未確認事項。
+- **注意点**: 既存の正確な指示を保持し、コマンドを設定から読んだことと実行したことを区別します。外部のチェッカーは任意で、ローカルの検証を代替しません。
+- **採用元**: [sunxiayi/agents-md-starter-kitと採用コミット](../skills/create-agentsmd/採用元.md)。旧`create-agents-md`を置き換えています。
 
 ### feature-dev
 
