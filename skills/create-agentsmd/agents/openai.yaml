@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGENTS.mdを作成・改善"
+  short_description: "リポジトリの根拠を確認してAGENTS.mdを作成・改善・監査します。"
+  default_prompt: "$create-agentsmdを使用してリポジトリの根拠と既存の指示を確認し、AGENTS.mdを作成・改善・監査してください。"

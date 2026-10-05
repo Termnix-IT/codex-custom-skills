@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGENTS.mdを作成・改善"
+  short_description: "リポジトリ固有のAGENTS.md作業指示を整備します。"
+  default_prompt: "$create-agents-mdを使用してリポジトリを調査し、既存の指示を保持しながら、簡潔で正確なAGENTS.mdを作成または改善してください。"

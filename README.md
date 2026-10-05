@@ -1,6 +1,6 @@
 # codex-custom-skills
 
-自作した Codex Skills を管理し、GitHub で公開するための repository です。
+自作・採用した Codex Skills と旧版の履歴を管理し、GitHub で公開するための repository です。
 
 ## Structure
 
@@ -9,6 +9,10 @@
 ├── skills/
 │   └── <skill-name>/
 │       └── SKILL.md
+├── archive/
+│   └── skills/<skill-name>/
+│       ├── 旧手順.md
+│       └── 廃止理由.md
 ├── docs/
 │   ├── Skills解説.md
 │   └── 公開手順.md
@@ -59,17 +63,21 @@ Copy-Item -Recurse .\skills\<skill-name> $env:USERPROFILE\.codex\skills\
 
 この repository に配置済みの skill は [Skills 解説](docs/Skills解説.md) にまとめています。
 
-現在は、license file が含まれていない自作 skill だけを公開対象として残しています。
+現役Skillには自作Skillと、採用元・コミット・ライセンスを明記した外部Skillを含みます。
+
+旧版は`archive/skills/`に保管します。置き換え時の記録方法は[Skills 解説の整理ルール](docs/Skills解説.md#整理ルール)、今回の旧版と理由は[create-agents-mdの廃止理由](archive/skills/create-agents-md/廃止理由.md)を参照してください。アーカイブはインストール対象に含めません。
 
 ## Notes
 
 - 実行用ファイルや scripts は English file names を使います。
 - 読み物の docs は Japanese file names を使います。
-- Codex 標準/配布 skill と判断できるものは、この repository には含めません。
+- Codex標準Skillは重複して含めず、外部Skillは採用を決めたものだけを含めます。
 
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+外部Skillには各Skill内のライセンスと著作権表示も適用されます。
 
 ## Documentation
 
