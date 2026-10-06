@@ -1,6 +1,6 @@
 ---
 name: video-edit
-description: Create videos from user-provided footage, images, text, music, and sound effects using Python and FFmpeg. Use for PVs, trailers, motion graphics, highlight or kill montages, app demos, introduction MVs from names and summaries, and other video edits, including capturing a runnable web app when requested. Explain prominent effects in plain language. Do not use for requests solely to generate new footage or to implement a video editor application.
+description: Create and edit videos from footage, images, text, music, and sound effects, choosing Python/FFmpeg, HTML/CSS, React, or a combination to suit the material and expression. Use for PVs, motion graphics, highlight montages, app demos, and introduction videos, including capturing a runnable web app when requested. Explain prominent effects in plain language. Do not use for requests solely to generate new footage or to implement a video editor application.
 ---
 
 # 動画の編集・制作
@@ -19,17 +19,32 @@ description: Create videos from user-provided footage, images, text, music, and 
 
 ## 素材を確認する
 
-1. Python、FFmpeg、ffprobeの所在と必要なフィルターを確認する。見つからない場合は既存の実行ファイルやランタイムを確認し、自動でシステム設定を変更しない。
-2. 動画・画像・音声素材は`scripts/video_workflow.py inspect`でストリームや尺を調べる。文章素材は元資料を読み、名称・概要・必須情報を照合する。元素材を保持し、制作物は指定された出力場所へ保存する。
-3. 動画素材は`frames`で確認用のフレームを抽出し、利用可能な画像・動画閲覧手段で実際の内容を確認する。静止画像は画像として確認する。抽出成功だけを内容確認として扱わない。長尺は粗く探索し、候補の前後を細かく確認する。
+1. 既存の制作プロジェクト、指定された方式、利用可能なランタイム・描画基盤を確認する。FFmpeg・ffprobeは素材検査と完成動画の検証に使う。同梱ヘルパーを使う場合はPythonも確認し、Web方式の必要環境は[Web方式の制作](references/Web方式の制作.md)で確認する。見つからない場合は既存の実行ファイルやランタイムを確認し、自動でシステム設定を変更しない。
+2. 動画・画像・音声素材は`scripts/video_workflow.py inspect`またはffprobeでストリームや尺を調べる。文章素材は元資料を読み、名称・概要・必須情報を照合する。元素材を保持し、制作物は指定された出力場所へ保存する。
+3. 動画素材は`frames`またはFFmpegで確認用のフレームを抽出し、利用可能な画像・動画閲覧手段で実際の内容を確認する。静止画像は画像として確認する。抽出成功だけを内容確認として扱わない。長尺は粗く探索し、候補の前後を細かく確認する。
 4. キル判定や操作の成功などは、HUD、直前直後の動き、音、指定されたタイムスタンプを根拠に判断する。画面変化の検出や少数の静止画だけで意味を断定しない。判断できない場合は候補として示すか、該当場面を質問する。
+
+## 制作方式を選ぶ
+
+素材確認後、演出案を作る段階で主方式と必要な補助方式を仮選択し、方向性の選択後に必要環境を確認して確定する。ユーザーの指定と既存プロジェクトを優先し、ジャンル名や派手さだけで決めない。
+
+| 方式 | 選ぶ条件 | 読む手順 |
+| --- | --- | --- |
+| Python＋FFmpeg | 既存映像・音声の編集が中心。カット、速度、音量、字幕、簡単な文字・図形で目的を満たせる | [実行手順](references/実行手順.md) |
+| HTML/CSS | 文字・図形・カード・UIの画面構成と動きが主役。Reactを必要とする理由がない | [Web方式の制作](references/Web方式の制作.md)。HyperFramesを第一候補にする |
+| React | 共通部品、データからの画面生成、内容違いの量産、既存React資産の利用が重要 | [Web方式の制作](references/Web方式の制作.md)。Remotionを第一候補にする |
+| 組み合わせ | 主方式だけでは必要な表現を作りにくい。例えば実写編集に凝った図解・タイトルを加える | 採用した方式の手順と[方式をまたぐ制作](references/編集と確認のポイント.md#方式をまたぐ制作) |
+
+- 同じ成果を得られるなら、既存の基盤を再利用し、依存関係と受け渡しが少ない方式を選ぶ。簡単な編集へWeb方式を強制せず、複雑な描画・時間管理の自作を避けるために既存フレームワークを使う。選ばれた方式の詳細だけを読む。
+- 方式と理由は制作データへ残す。ユーザーには仕上がり、修正のしやすさ、費用への影響を短く伝え、技術方式の選択を丸投げしない。承認済みの演出案を外部Skill側で一から聞き直さない。
+- 選んだ基盤がない場合は、必要条件、導入範囲、表現への影響を示す。案件の承認範囲で必要な依存だけを用意し、外部Skillの一括導入やシステム設定の変更へ広げない。利用条件・費用・権限が未合意の操作は確認し、大きく異なる代替へ黙って切り替えない。
 
 ## 構成と制作
 
 - 選ばれた強みに画面・尺・音を割り当て、各場面の役割から構成と動きを決める。複数の項目を別の視点で紹介する依頼では、主役、情報の順序、画面構成、テンポを内容に応じて変える。全項目を同じレイアウト・同じ尺に並べ、図や色だけ変えて演出の違いとしない。全体の書体・色・動きには一貫性を持たせる。
-- 素材の使う区間、順序、強調、テキスト、音の扱いを編集可能なJSONや制作スクリプトへ残す。修正時は同じ制作データを更新し、完成MP4の再編集で画質を落とさない。
+- 素材の使う区間、順序、強調、テキスト、音の扱いを編集可能なJSONや制作プロジェクトへ残す。[共通の制作記録](references/編集と確認のポイント.md#共通の制作記録)で方式・時間軸・出力を関連付ける。修正時は同じ制作データを更新し、完成MP4の再編集で画質を落とさない。
 - 基本のカット、定速の速度変更、中央ズーム、フェード、原音・BGM、時刻指定のナレーション・効果音、BGMのダッキング、字幕合成には同梱ヘルパーを使える。操作方法と制作データは[実行手順](references/実行手順.md)を必要に応じて読む。
-- ヘルパーの機能に表現を限定しない。ロゴ・画像の合成、効果音、ビート合わせ、スピードランプ、画面揺れ、凝った文字演出などは、必要な箇所だけPythonとFFmpegで追加する。[編集と確認のポイント](references/編集と確認のポイント.md)を参照する。
+- ヘルパーの機能に表現を限定しない。追加処理が小さければPythonとFFmpegで補い、凝った文字・図形・UIの演出は選んだWeb基盤の機能を活用する。[編集と確認のポイント](references/編集と確認のポイント.md)を参照する。
 - 音楽の拍位置や見せ場を確認して編集する。速度変更は原音との同期・音程を考慮する。字幕や強い演出でゲームのHUD・アプリの重要な操作を隠さない。
 - 既存素材を基本とし、新規素材は必要性と手段を説明する。外部生成の使用と費用上限が合意済みなら、その範囲で進める。必要な入力だけを送信し、素材の公開や合意外の有料生成をしない。
 
