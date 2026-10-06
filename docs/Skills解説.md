@@ -13,7 +13,7 @@
 | `frontend-design-brief` | frontend の見た目や設計方向を実装前に明確化し、既存 UI と一貫した変更にします。 | `skills/frontend-design-brief/` |
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
 | `why-before-build` | personal project で機能追加前に、本当に作るべきか、最小範囲は何かを検討します。 | `skills/why-before-build/` |
-| `video-edit` | 提供素材に合う演出を2〜3案から選び、音付きの短いプレビューを確認して動画を制作します。 | `skills/video-edit/` |
+| `video-edit` | 提供素材に合う演出と制作方式を選び、音付きの短いプレビューを確認して動画を制作します。 | `skills/video-edit/` |
 
 ## 整理ルール
 
@@ -67,8 +67,8 @@
 
 - **目的**: 提供素材の強みを活かす演出を提案し、専門用語を知らなくても制作・修正を依頼できるようにします。原文は意味と必須情報を守って要約できます。
 - **使う場面**: PV、キル集、アプリ紹介MVなどの編集依頼。必要なら起動可能なWebアプリの撮影から扱いますが、ジャンルは限定しません。
-- **成果物**: 手法の説明と推奨理由を含む演出案、音付きの短いプレビュー、確認後の完成動画、修正用の編集JSONまたは制作スクリプト、主な演出の短い説明。
-- **注意点**: PythonとFFmpeg・ffprobeが必要です。BGMは持ち込みを優先し、不足時やAI選曲を指定した場合は候補から選びます。必要な画像素材は任意のGPT Imageで補えます。任意のGemini TTSにはAPI利用環境が必要です。同梱スクリプトの操作・対応範囲はSkill内の[実行手順](../skills/video-edit/references/実行手順.md)、画像生成は[編集と確認のポイント](../skills/video-edit/references/編集と確認のポイント.md#生成画像を動画へ組み込む)、TTSは[音声生成](../skills/video-edit/references/音声生成.md)を参照してください。
+- **成果物**: 手法の説明と推奨理由を含む演出案、素材と表現に合う制作方式、音付きの短いプレビュー、確認後の完成動画、修正用の制作記録・編集JSONまたは制作プロジェクト、主な演出の短い説明。
+- **注意点**: FFmpeg・ffprobeと、選んだ方式の必要環境を使います。基本編集はPython＋FFmpeg、文字・図形・UIの演出はHTML/CSS（HyperFramesを第一候補）、部品の再利用・量産はReact（Remotionを第一候補）を選び、必要なら組み合わせます。同梱ヘルパーにはPythonが必要で、Web基盤や外部Skillsは一括導入しません。BGMは持ち込みを優先し、不足時やAI選曲を指定した場合は候補から選びます。必要な画像素材は任意のGPT Imageで補えます。任意のGemini TTSにはAPI利用環境が必要です。同梱スクリプトは[実行手順](../skills/video-edit/references/実行手順.md)、Web方式は[Web方式の制作](../skills/video-edit/references/Web方式の制作.md)、方式間の合成と画像生成は[編集と確認のポイント](../skills/video-edit/references/編集と確認のポイント.md)、TTSは[音声生成](../skills/video-edit/references/音声生成.md)を参照してください。
 
 ## 追記テンプレート
 
