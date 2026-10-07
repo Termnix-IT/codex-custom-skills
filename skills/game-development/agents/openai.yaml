@@ -1,0 +1,4 @@
+interface:
+  display_name: "ゲーム制作"
+  short_description: "エンジン共通で企画・体験設計・実装・プレイテスト・配布用ビルドを進める"
+  default_prompt: "$game-developmentを使って、企画から遊べる試作、プレイテスト、配布用ビルドまで、今回必要なゲーム制作を進めてください。"
