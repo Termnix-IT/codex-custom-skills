@@ -14,6 +14,7 @@
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
 | `why-before-build` | personal project で機能追加前に、本当に作るべきか、最小範囲は何かを検討します。 | `skills/why-before-build/` |
 | `video-edit` | 提供素材に合う演出と制作方式を選び、音付きの短いプレビューを確認して動画を制作します。 | `skills/video-edit/` |
+| `game-development` | エンジン共通で、企画・体験設計から実装、プレイテスト、配布用ビルドまで必要な工程を進めます。 | `skills/game-development/` |
 
 ## 整理ルール
 
@@ -69,6 +70,15 @@
 - **使う場面**: PV、キル集、アプリ紹介MVなどの編集依頼。必要なら起動可能なWebアプリの撮影から扱いますが、ジャンルは限定しません。
 - **成果物**: 手法の説明と推奨理由を含む演出案、素材と表現に合う制作方式、動き・文言も確認できる音付きの短いプレビュー、確認後の完成動画、修正用の制作記録・編集JSONまたは制作プロジェクト、主な演出の短い説明。今回の指定先を優先し、指定がなければ任意の個人用JSONの既定先へ案件ごとに保存します。個人パスを公開Skillへ含めない設定方法は[保存先と個人設定](../skills/video-edit/references/編集と確認のポイント.md#保存先と個人設定)を参照してください。
 - **注意点**: FFmpeg・ffprobeと、選んだ方式の必要環境を使います。基本編集はPython＋FFmpeg、文字・図形・UIの演出はHTML/CSS（HyperFramesを第一候補）、部品の再利用・量産はReact（Remotionを第一候補）を選び、必要なら組み合わせます。同梱ヘルパーにはPythonが必要で、Web基盤や外部Skillsは一括導入しません。BGMは持ち込みを優先し、不足時やAI選曲を指定した場合は候補から選びます。必要な画像素材は任意のGPT Imageで補えます。任意のGemini TTSにはAPI利用環境が必要です。同梱スクリプトは[実行手順](../skills/video-edit/references/実行手順.md)、Web方式は[Web方式の制作](../skills/video-edit/references/Web方式の制作.md)、方式間の合成と画像生成は[編集と確認のポイント](../skills/video-edit/references/編集と確認のポイント.md)、TTSは[音声生成](../skills/video-edit/references/音声生成.md)を参照してください。
+
+### game-development
+
+- **目的**: プレイヤーの行動と選択を軸に、遊べる試作から依頼された完成範囲まで制作します。
+- **使う場面**: 新規ゲームの企画・制作、既存ゲームの機能追加・修正・バランス調整、演出、検証、配布用ビルド。
+- **成果物**: 依頼範囲に応じた企画とルール、操作可能なゲームとソース、プレイ確認の結果、検証済みの配布物。構想相談だけの場合は実装しません。
+- **構成**: [SKILL.md](../skills/game-development/SKILL.md)が共通方針と参照先を担当し、`references/`内の6資料を必要な工程だけ読みます。`agents/openai.yaml`は表示名と呼び出し文を定義します。実用途のあるヘルパーや配布素材が決まるまで`scripts/`や`assets/`を作りません。
+- **拡張**: [制作環境の選択](../skills/game-development/references/制作環境の選択.md#環境別手順を追加する)に従い、必要になった環境の手順を`references/engines/<environment>/`へ追加します。初版は特定エンジンのAPIやテンプレートを含みません。
+- **注意点**: 実際のプレイ、自動テスト、ビルド成功、人による評価を区別します。使用環境の能力に応じた未確認事項を伝え、特定のエンジン、ジャンル、FPS、外部Skillを必須にしません。配布用ビルドの作成は公開・ストア申請を含みません。
 
 ## 追記テンプレート
 
