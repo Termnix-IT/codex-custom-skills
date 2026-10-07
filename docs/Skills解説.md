@@ -13,6 +13,7 @@
 | `frontend-design-brief` | frontend の見た目や設計方向を実装前に明確化し、既存 UI と一貫した変更にします。 | `skills/frontend-design-brief/` |
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
 | `why-before-build` | personal project で機能追加前に、本当に作るべきか、最小範囲は何かを検討します。 | `skills/why-before-build/` |
+| `personal-dev-knowledge` | AIを活用した個人開発の判断・理由・結果を固定の知識フォルダへ保存し、検索して再利用します。 | `skills/personal-dev-knowledge/` |
 | `video-edit` | 提供素材に合う演出と制作方式を選び、音付きの短いプレビューを確認して動画を制作します。 | `skills/video-edit/` |
 | `game-development` | エンジン共通で、企画・体験設計から実装、プレイテスト、配布用ビルドまで必要な工程を進めます。 | `skills/game-development/` |
 
@@ -80,6 +81,14 @@
 - **構成**: [SKILL.md](../skills/game-development/SKILL.md)が共通方針と参照先を担当し、`references/`内の6資料を必要な工程だけ読みます。`agents/openai.yaml`は表示名と呼び出し文を定義します。実用途のあるヘルパーや配布素材が決まるまで`scripts/`や`assets/`を作りません。
 - **拡張**: [制作環境の選択](../skills/game-development/references/制作環境の選択.md#環境別手順を追加する)に従い、必要になった環境の手順を`references/engines/<environment>/`へ追加します。初版は特定エンジンのAPIやテンプレートを含みません。
 - **注意点**: 実際のプレイ、自動テスト、ビルド成功、人による評価を区別します。使用環境の能力に応じた未確認事項を伝え、特定のエンジン、ジャンル、FPS、外部Skillを必須にしません。配布用ビルドの作成は公開・ストア申請を含みません。
+
+### personal-dev-knowledge
+
+- **目的**: 個人開発で「なぜその対応を選んだか」を残し、調べ直しや同じ失敗、AIへの説明の繰り返しを減らします。
+- **使う場面**: `$personal-dev-knowledge ここで決めた方針と理由を残して`、`$personal-dev-knowledge 今回に使える過去の判断を探して`、保存済みの判断の検証結果を更新するとき。
+- **成果物**: 固定の知識フォルダに置く日本語の判断記録と`索引.md`、根拠となる記録を参照した回答。採用状態と検証状態を分け、置き換えた判断も履歴として保持します。
+- **保存先**: `$CODEX_HOME/skill-settings/personal-dev-knowledge.json`の`knowledge_root`で固定します。`CODEX_HOME`未設定時はユーザーのホームの`.codex`を基点とします。個人パスや記録本文は公開リポジトリに含めません。設定と記録形式は[SKILL.md](../skills/personal-dev-knowledge/SKILL.md)を参照してください。
+- **注意点**: Markdownと`rg`またはPowerShellによる検索から始めます。会話にない理由や未測定の効果を補わず、過去の判断を現在の条件で再評価します。通常の開発や検索だけの依頼では記録を増やしません。
 
 ## 追記テンプレート
 

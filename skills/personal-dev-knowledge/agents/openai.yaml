@@ -1,0 +1,4 @@
+interface:
+  display_name: "個人開発の判断とノウハウ"
+  short_description: "AIを活用した個人開発の判断・理由・結果を固定先に保存し、次の開発で再利用します"
+  default_prompt: "$personal-dev-knowledge を使って、今回の判断と理由、適用条件、検証結果を個人知識へ保存してください。"
