@@ -1,12 +1,12 @@
 # Implementation Rules
 
-Use these rules after the design direction is approved. They are implementation constraints, not a replacement for inspecting the existing project.
+Use these rules after the design direction is clear and any required visual review in `SKILL.md` is complete. They are implementation constraints, not a replacement for inspecting the existing project.
 
 ## Preserve the Brief
 
 - Do not introduce a new visual style during implementation unless the user approves it.
 - Keep color, spacing, typography, component shape, density, and hierarchy aligned with the approved brief.
-- If implementation constraints require a change, state the tradeoff and choose the smallest deviation.
+- If implementation constraints require a change, state the tradeoff and choose the smallest deviation. Re-present the affected visual proposal before implementing a material change to the approved structure or flow; minor refinements within the approved direction do not need another approval.
 
 ## Existing Systems
 

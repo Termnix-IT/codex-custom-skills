@@ -11,7 +11,7 @@ This skill owns design clarification and brief creation. When implementation beg
 
 ## Core Rule
 
-Before non-trivial frontend design work, clarify the design direction. If the user gives a clear instruction, proceed without unnecessary questions. If the direction is vague, image-derived, or broad enough to affect multiple UI decisions, ask 1-3 focused questions before implementing.
+Before non-trivial frontend design work, clarify the design direction. Ask 1-3 focused questions only when an unresolved choice materially affects the result and cannot be inferred from the request or existing UI. A clear written direction removes the need for clarification questions; new screens and substantial layout or navigation changes still follow the visual review below.
 
 ## Workflow
 
@@ -20,8 +20,18 @@ Before non-trivial frontend design work, clarify the design direction. If the us
 3. If modifying existing UI, determine the intended scope: small, medium, or large.
 4. Ask scope-appropriate questions only when needed.
 5. Produce a concise design brief.
-6. During implementation, preserve the approved brief.
-7. After frontend changes, verify the rendered UI with Browser or Playwright whenever the project can be run locally.
+6. For new screens or substantial layout or navigation changes, present a visual wireframe and obtain approval before implementing the proposed UI.
+7. During implementation, preserve the approved visual direction and brief.
+8. After frontend changes, verify the rendered UI with Browser or Playwright whenever the project can be run locally.
+
+## Visual Review Before Implementation
+
+- Use this review for new screens and substantial changes to layout, information hierarchy, or navigation. Skip it for typo fixes, small spacing or color adjustments, behavior fixes that preserve the screen structure, and work within an already approved design. An explicit instruction to implement without prior review takes precedence. Asking Codex to choose a design alone does not waive this review.
+- Build the smallest visual proposal that makes the decision concrete: normally one representative screen at the intended viewport size, with key content, controls, and the main action. Include another size or state only when it changes the layout or flow being reviewed. Do not design every screen in advance.
+- Show an actual viewable wireframe using a local HTML preview, rendered image, or another available visual tool. Use realistic labels and content lengths. If color, typography, or atmosphere is central to the request, add a styled mockup. Explain what the preview demonstrates and which details are provisional; a text brief or file path alone does not satisfy visual review.
+- Creating the preview is authorized preparatory work. Keep it limited to communicating the proposal; defer production UI integration, behavior, and data connections until approval. Keep the brief in chat rather than creating a new Markdown document by default.
+- Present the preview with a short explanation of the main layout decisions and ask whether to implement it or revise it. Wait for the user's answer before implementing that proposal. While waiting, continue only work that does not depend on the visual choice. Silence or elapsed time is not approval. If a visual preview cannot be shown, explain the limitation and agree on a review method before dependent implementation.
+- Reuse a supplied mockup or wireframe when the user has explicitly approved it for implementation and it covers the affected layout and flow. After approval, proceed through implementation and verification without repeated checks for minor refinements. Return for visual review only when a material deviation changes the approved structure or flow.
 
 ## Image-Based Direction
 
@@ -29,8 +39,8 @@ When the user provides or references an image from `gpt-image-2.0`, Codex app im
 
 - Analyze layout, composition, color, typography, spacing, surface treatment, visual density, component shape, imagery, and mood.
 - Name the apparent design styles with established design vocabulary.
-- Ask whether the user wants the frontend to follow those styles.
-- Do not treat image analysis as approval.
+- Ask how closely to follow those styles only when the user's intent is unclear.
+- Do not treat image analysis as approval; reuse an explicitly approved implementation reference under the visual review rule.
 
 Read `references/design-vocabulary.md` when style labels or design terminology would help.
 
@@ -76,7 +86,7 @@ After clarification, produce a short design brief with:
 
 - Scope
 - Target surface
-- Approved design direction
+- Proposed or approved design direction, clearly distinguished
 - Visual vocabulary
 - Layout rules
 - Component rules

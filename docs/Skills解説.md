@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `create-agentsmd` | repository の根拠、コマンド、階層別の適用範囲を確認し、`AGENTS.md`を作成・改善・監査します。 | `skills/create-agentsmd/` |
 | `feature-dev` | 非自明な機能開発を、調査、設計比較、実装、検証、要約まで一貫して進めます。 | `skills/feature-dev/` |
-| `frontend-design-brief` | frontend の見た目や設計方向を実装前に明確化し、既存 UI と一貫した変更にします。 | `skills/frontend-design-brief/` |
+| `frontend-design-brief` | frontend の設計方向を整理し、新規画面や大きな構成変更ではワイヤーフレームを確認してから実装へ進みます。 | `skills/frontend-design-brief/` |
 | `implementation-researcher` | 実装前に built-in API、既存依存、新規 library、自作実装のリスクを比較して方針を決めます。 | `skills/implementation-researcher/` |
 | `why-before-build` | personal project で機能追加前に、本当に作るべきか、最小範囲は何かを検討します。 | `skills/why-before-build/` |
 | `personal-dev-knowledge` | AIを活用した個人開発の判断・理由・結果を固定の知識フォルダへ保存し、検索して再利用します。 | `skills/personal-dev-knowledge/` |
@@ -48,8 +48,8 @@
 
 - **目的**: frontend のデザイン意図、UI 制約、既存 design system との整合を先に固めます。
 - **使う場面**: screenshot、design image、既存 UI をもとに変更したいとき。
-- **成果物**: 実装前の design brief、維持すべき見た目のルール。
-- **注意点**: 実装そのものではなく、デザイン判断を安定させるための skill です。
+- **成果物**: 実装前の design brief、新規画面や大きな構成変更の視覚的なワイヤーフレーム、必要に応じたモックアップ、維持すべき見た目のルール。
+- **注意点**: 新規画面や大きな構成変更では、視覚案の提示・修正・承認後に実装へ進みます。小さな修正や承認済みの方向内の調整は再承認を必須にしません。実装そのものではなく、デザイン判断を安定させるための skill です。詳細は[実装前の視覚確認](../skills/frontend-design-brief/SKILL.md#visual-review-before-implementation)を参照してください。
 
 ### implementation-researcher
 
@@ -77,7 +77,8 @@
 - **目的**: プレイヤーの行動と選択を軸に、遊べる試作から依頼された完成範囲まで制作します。
 - **UI/UX**: 世界・盤面・手札・会話など遊びが起きる場所を主役にし、視線、情報の層、操作と結果、開始から再挑戦までを設計します。業務アプリの構成を既定値にせず、ゲームに必要なカードや表は用途に応じて使います。全要素を収めるための縮小を既定値にせず、[見せる範囲と見せない範囲](../skills/game-development/references/見た目と音の設計.md#見せる範囲と見せない範囲を決める)を判断します。設計の基準は[見た目と音の設計](../skills/game-development/references/見た目と音の設計.md)、確認方法は[プレイテストと品質確認](../skills/game-development/references/プレイテストと品質確認.md#ゲーム画面としてのuiuxを確認する)を参照してください。
 - **使う場面**: 新規ゲームの企画・制作、既存ゲームの機能追加・修正・バランス調整、演出、検証、配布用ビルド。
-- **成果物**: 依頼範囲に応じた企画とルール、操作可能なゲームとソース、プレイ確認の結果、検証済みの配布物。構想相談だけの場合は実装しません。
+- **成果物**: 依頼範囲に応じた企画とルール、新規画面や大きな構成変更の代表場面のワイヤーフレーム、操作可能なゲームとソース、プレイ確認の結果、検証済みの配布物。構想相談だけの場合は実装しません。
+- **事前確認**: [ワイヤーフレームで実装前に確認する](../skills/game-development/references/見た目と音の設計.md#ワイヤーフレームで実装前に確認する)に従い、新規画面や画面構成・UI・画角の大きな変更では視覚案の承認後に試作へ進みます。小さな修正や承認済みの方向内の調整は再承認を必須にせず、操作感や面白さは試作で確かめます。
 - **構成**: [SKILL.md](../skills/game-development/SKILL.md)が共通方針と参照先を担当し、`references/`内の6資料を必要な工程だけ読みます。`agents/openai.yaml`は表示名と呼び出し文を定義します。実用途のあるヘルパーや配布素材が決まるまで`scripts/`や`assets/`を作りません。
 - **拡張**: [制作環境の選択](../skills/game-development/references/制作環境の選択.md#環境別手順を追加する)に従い、必要になった環境の手順を`references/engines/<environment>/`へ追加します。初版は特定エンジンのAPIやテンプレートを含みません。
 - **注意点**: 実際のプレイ、自動テスト、ビルド成功、人による評価を区別します。使用環境の能力に応じた未確認事項を伝え、特定のエンジン、ジャンル、FPS、外部Skillを必須にしません。配布用ビルドの作成は公開・ストア申請を含みません。
